@@ -35,7 +35,7 @@ public class EnrollmentSystem {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(
             "jdbc:mysql://localhost:3306/enrollmentsystem?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
-             "root", ""); //(db, user, pass)
+             "root", "root"); //(db, user, pass)
 
             st = con.createStatement();  
 
@@ -51,5 +51,19 @@ public class EnrollmentSystem {
          return true;
 
     }
+    
+    public boolean isIdExists(String tableName, String idColumn, int id) {
+    DBConnect();
+    try {
+        String query = "SELECT COUNT(*) FROM " + tableName + " WHERE " + idColumn + " = " + id;
+        rs = st.executeQuery(query);
+        if (rs.next()) {
+            return rs.getInt(1) > 0;
+        }
+    } catch (Exception ex) {
+        ex.printStackTrace();
+    }
+    return false;
+}
 }
     

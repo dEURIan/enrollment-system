@@ -285,6 +285,14 @@ public class TeachersFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_teacherTableMouseClicked
 
     private void SaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveActionPerformed
+       int id = Integer.parseInt(tid.getText().trim());
+        EnrollmentSystem db = new EnrollmentSystem();
+
+        if (db.isIdExists("teachers", "tid", id)) {
+            messagebox("Teacher ID already exists! Cannot create duplicate row.", "Duplicate ID");
+            return;
+        }
+        
         Teacher c = new Teacher();
         c.newteacher(Integer.parseInt(tid.getText()), tname.getText(),tdept.getText(),tcontact.getText());
         showRecords();        

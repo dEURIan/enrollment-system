@@ -312,6 +312,15 @@ public class StudentsForm extends javax.swing.JFrame {
     }//GEN-LAST:event_searchFocusLost
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
+       int id = Integer.parseInt(studid.getText().trim());
+        EnrollmentSystem db = new EnrollmentSystem();
+
+         // Check if ID already exists
+        if (db.isIdExists("students", "studid", id)) {
+            messagebox("Student ID already exists! Cannot create duplicate row.", "Duplicate ID");
+        return;
+        }
+        
         Students c = new Students();
         c.newstudent(Integer.parseInt(studid.getText()), studname.getText(),studadd.getText(),studcrs.getText(),studgender.getText(),yrlvl.getText());
         showRecords();

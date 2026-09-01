@@ -261,6 +261,14 @@ public class SubjectsFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_searchFocusLost
 
     private void SaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SaveActionPerformed
+        int id = Integer.parseInt(subjid.getText().trim());
+        EnrollmentSystem db = new EnrollmentSystem();
+
+        if (db.isIdExists("subjects", "subjid", id)) {
+            messagebox("Subject ID already exists! Cannot create duplicate row.", "Duplicate ID");
+            return;
+        }
+        
         Subjects c = new Subjects();
         c.newsubject(Integer.parseInt(subjid.getText()), subjcode.getText(),subjdesc.getText(),subjunit.getText(),subjsched.getText());
         showRecords();
