@@ -1,5 +1,6 @@
 package com.mycompany.enrollmentsystem;
 
+import java.awt.Component;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -13,7 +14,7 @@ import javax.swing.table.DefaultTableModel;
  * @author ualfante
  */
 public class StudentsForm extends javax.swing.JFrame {
-    
+    String stdid;
     public void showRecords(){
         DefaultTableModel tblmodel = (DefaultTableModel) studTable.getModel();
         tblmodel.setRowCount(0);
@@ -81,6 +82,8 @@ public class StudentsForm extends javax.swing.JFrame {
         jMenu1 = new javax.swing.JMenu();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jLabel4 = new javax.swing.JLabel();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
         jScrollPane2 = new javax.swing.JScrollPane();
         studTable = new javax.swing.JTable();
         search = new javax.swing.JTextField();
@@ -100,11 +103,17 @@ public class StudentsForm extends javax.swing.JFrame {
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        EnrollSubject = new javax.swing.JButton();
+        DropSubject = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         open = new javax.swing.JMenu();
         subjects = new javax.swing.JMenuItem();
         teachers = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        Database = new javax.swing.JMenu();
+        firstSem = new javax.swing.JMenuItem();
 
         jMenu1.setText("jMenu1");
 
@@ -112,6 +121,8 @@ public class StudentsForm extends javax.swing.JFrame {
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
 
         jLabel4.setText("jLabel4");
+
+        jMenuItem1.setText("jMenuItem1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -177,6 +188,32 @@ public class StudentsForm extends javax.swing.JFrame {
 
         jLabel8.setText("Year LVL");
 
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Sbject ID", "Subject code", "Subject description", "Subject units", "Subject Sched"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Integer.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(jTable1);
+
+        EnrollSubject.setText("Enroll Subject");
+        EnrollSubject.addActionListener(this::EnrollSubjectActionPerformed);
+
+        DropSubject.setText("Drop Subject");
+
         open.setText("open");
 
         subjects.setText("subjects");
@@ -196,6 +233,15 @@ public class StudentsForm extends javax.swing.JFrame {
 
         jMenu2.setText("Edit");
         jMenuBar1.add(jMenu2);
+
+        Database.setText("Database");
+        Database.addActionListener(this::DatabaseActionPerformed);
+
+        firstSem.setText("1st Sem");
+        firstSem.addActionListener(this::firstSemActionPerformed);
+        Database.add(firstSem);
+
+        jMenuBar1.add(Database);
 
         setJMenuBar(jMenuBar1);
 
@@ -225,23 +271,30 @@ public class StudentsForm extends javax.swing.JFrame {
                             .addComponent(studgender, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(studcrs, javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(studadd, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(studname, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(studname, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(EnrollSubject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(DropSubject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGap(14, 14, 14)))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 48, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(6, 6, 6)
                                 .addComponent(saveBtn)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(editBtn)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(deleteBtn))
-                            .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(237, 237, 237))
+                                .addComponent(deleteBtn)))
+                        .addGap(695, 695, 695))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1)
+                            .addComponent(jScrollPane2))
                         .addContainerGap())))
             .addGroup(layout.createSequentialGroup()
                 .addGap(243, 243, 243)
@@ -250,8 +303,8 @@ public class StudentsForm extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(18, 18, 18)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(41, 41, 41)
                 .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -289,7 +342,16 @@ public class StudentsForm extends javax.swing.JFrame {
                     .addComponent(saveBtn)
                     .addComponent(editBtn)
                     .addComponent(deleteBtn))
-                .addGap(33, 33, 33))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(EnrollSubject)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(DropSubject)))
+                .addGap(39, 39, 39))
         );
 
         pack();
@@ -362,7 +424,7 @@ public class StudentsForm extends javax.swing.JFrame {
     private void studTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_studTableMouseClicked
         int[] selectRow = studTable.getSelectedRows();
         if (selectRow.length > 0) {
-            String stdid = (String) studTable.getValueAt(selectRow[0], 0);
+            stdid = (String) studTable.getValueAt(selectRow[0], 0);
             studid.setText(stdid);
 
             // Lock ID so it cannot be modified
@@ -380,7 +442,10 @@ public class StudentsForm extends javax.swing.JFrame {
             yrlvl.setText(syr);
         }
     }//GEN-LAST:event_studTableMouseClicked
-
+    public static int okcancel(String theMessage){
+        int result = JOptionPane.showConfirmDialog((Component) null, theMessage, "alert", JOptionPane.OK_CANCEL_OPTION);
+        return result;
+    }
     private void subjectsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subjectsActionPerformed
         SubjectsFrame a = new SubjectsFrame();
         a.setVisible(true);
@@ -395,6 +460,22 @@ public class StudentsForm extends javax.swing.JFrame {
        TeachersFrame z = new TeachersFrame();
        z.setVisible(true);
     }//GEN-LAST:event_teachersActionPerformed
+
+    private void firstSemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firstSemActionPerformed
+        EnrollmentSystem db = new EnrollmentSystem();
+        db.newdb("1st");
+    }//GEN-LAST:event_firstSemActionPerformed
+
+    private void DatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DatabaseActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_DatabaseActionPerformed
+
+    private void EnrollSubjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnrollSubjectActionPerformed
+        Enroll a = new Enroll();
+        
+        int i = okcancel("Enroll Student ID:" + stdid + " to subject ID:"  + a.getSubjectID());
+        
+    }//GEN-LAST:event_EnrollSubjectActionPerformed
 
     /**
      * @param args the command line arguments
@@ -434,8 +515,12 @@ public class StudentsForm extends javax.swing.JFrame {
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu Database;
+    private javax.swing.JButton DropSubject;
+    private javax.swing.JButton EnrollSubject;
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton editBtn;
+    private javax.swing.JMenuItem firstSem;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -448,7 +533,11 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JPopupMenu jPopupMenu1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JTable jTable1;
     private javax.swing.JMenu open;
     private javax.swing.JButton saveBtn;
     private javax.swing.JTextField search;

@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Calendar;
 
 public class EnrollmentSystem {
     
@@ -21,7 +22,20 @@ public class EnrollmentSystem {
     Statement st;
 
     static ResultSet rs; 
-
+    
+    public String newdb (String term){
+        DBConnect();
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        String schyear = "SY" + year+"_"+(year+1);
+        String query = "create database if not exists " + term;
+        try{
+            st.executeUpdate(query);
+        }catch(Exception ex){
+            System.out.println(ex);
+        }
+        return term + "_" + schyear;
+    }
+    
     public static void main(String[] args) { 
       StudentsForm a = new StudentsForm();
       a.setVisible(true);
