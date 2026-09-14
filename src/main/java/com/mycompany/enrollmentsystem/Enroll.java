@@ -10,7 +10,7 @@ import java.sql.DriverManager;
  *
  * @author Euri
  */
-public class Enroll {
+public class Enroll extends EnrollmentSystem{
     static int subjid;
 
     public static int getSubjid() {
@@ -23,30 +23,24 @@ public class Enroll {
     
     public String enrollStud(int studid){
        DBConnect(); 
-       String enrollQuery = "";
+       String enrollQuery = "insert into enroll(studid, subjid, evaluation) values(" + studid + ", " + subjid + ", '')";
+       try{
+           st.executeUpdate(enrollQuery);
+       }catch(Exception ex){
+           System.out.println("failed to insert" + ex);
+       }
+       return "Student " + studid + " enrolled to " + subjid;
     }
     
-        public boolean DBConnect(){
- 
+    public String dropStud(int studid, int subjid){
+       DBConnect(); 
+       String dropQuery = "delete from enroll where studid = " + studid + " and subjid = " + subjid;
        try{
-
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/enrollmentsystem?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
-             "root", "root"); //(db, user, pass)
-
-            st = con.createStatement();  
-
-            System.out.println("Connected to database!");
-
-        }catch (Exception ex) {
-       
-            System.out.print(ex);  
-            
-            System.out.println("Connection failed");
-            return false;
-        }
-         return true;
-
+           st.executeUpdate(dropQuery);
+       }catch(Exception ex){
+           System.out.println("failed to drop: " + ex);
+       }
+       return "Student " + studid + " dropped from subject " + subjid;
     }
+   
 }

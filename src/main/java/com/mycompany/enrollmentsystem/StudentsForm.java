@@ -52,20 +52,8 @@ public class StudentsForm extends javax.swing.JFrame {
      */
     public StudentsForm() {
         initComponents();
-////        studTable.addMouseListener(new java.awt.event.MouseAdapter() {
-////    @Override
-////    public void mouseClicked(java.awt.event.MouseEvent evt) {
-////        int row = studTable.getSelectedRow();
-////        if (row >= 0) {
-////            studid.setText(studTable.getValueAt(row, 0).toString());
-////            studname.setText(studTable.getValueAt(row, 1).toString());
-////            studadd.setText(studTable.getValueAt(row, 2).toString());
-////            studcrs.setText(studTable.getValueAt(row, 3).toString());
-////            studgender.setText(studTable.getValueAt(row, 4).toString());
-////            yrlvl.setText(studTable.getValueAt(row, 5).toString());
-////        }
-////    }
-////});
+        studid.setEditable(false);     
+        studgender.setEditable(true);
         showRecords();
     }
     
@@ -104,9 +92,10 @@ public class StudentsForm extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        enrollRecTable = new javax.swing.JTable();
         EnrollSubject = new javax.swing.JButton();
         DropSubject = new javax.swing.JButton();
+        jLabel9 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         open = new javax.swing.JMenu();
         subjects = new javax.swing.JMenuItem();
@@ -161,11 +150,16 @@ public class StudentsForm extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
         jLabel1.setText("STUDENT INFORMATION SYSTEM");
 
+        studid.setEditable(false);
         studid.addActionListener(this::studidActionPerformed);
 
         studname.addActionListener(this::studnameActionPerformed);
+
+        studgender.setEditable(false);
+        studgender.addActionListener(this::studgenderActionPerformed);
 
         jLabel2.setText("ID");
 
@@ -188,7 +182,7 @@ public class StudentsForm extends javax.swing.JFrame {
 
         jLabel8.setText("Year LVL");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        enrollRecTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -207,12 +201,16 @@ public class StudentsForm extends javax.swing.JFrame {
                 return types [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(enrollRecTable);
 
         EnrollSubject.setText("Enroll Subject");
         EnrollSubject.addActionListener(this::EnrollSubjectActionPerformed);
 
         DropSubject.setText("Drop Subject");
+        DropSubject.addActionListener(this::DropSubjectActionPerformed);
+
+        jLabel9.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        jLabel9.setText("Enrolled Subjects");
 
         open.setText("open");
 
@@ -293,6 +291,9 @@ public class StudentsForm extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel9)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addComponent(jScrollPane1)
                             .addComponent(jScrollPane2))
                         .addContainerGap())))
@@ -306,7 +307,7 @@ public class StudentsForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(41, 41, 41)
+                .addGap(35, 35, 35)
                 .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -342,16 +343,15 @@ public class StudentsForm extends javax.swing.JFrame {
                     .addComponent(saveBtn)
                     .addComponent(editBtn)
                     .addComponent(deleteBtn))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(38, 38, 38)
-                        .addComponent(EnrollSubject)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(DropSubject)))
-                .addGap(39, 39, 39))
+                .addGap(38, 38, 38)
+                .addComponent(EnrollSubject)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(DropSubject)
+                .addGap(40, 40, 40)
+                .addComponent(jLabel9)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
@@ -374,18 +374,16 @@ public class StudentsForm extends javax.swing.JFrame {
     }//GEN-LAST:event_searchFocusLost
 
     private void saveBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveBtnActionPerformed
-       int id = Integer.parseInt(studid.getText().trim());
-        EnrollmentSystem db = new EnrollmentSystem();
-
-         // Check if ID already exists
-        if (db.isIdExists("students", "studid", id)) {
-            messagebox("Student ID already exists! Cannot create duplicate row.", "Duplicate ID");
-        return;
-        }
-        
         Students c = new Students();
-        c.newstudent(Integer.parseInt(studid.getText()), studname.getText(),studadd.getText(),studcrs.getText(),studgender.getText(),yrlvl.getText());
-        showRecords();
+            c.newstudent(
+                studname.getText(),
+                studadd.getText(),
+                studcrs.getText(),
+                studgender.getText(),
+                yrlvl.getText()
+            );
+            showRecords();
+            clearFields();
     }//GEN-LAST:event_saveBtnActionPerformed
 
     private void studnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studnameActionPerformed
@@ -422,6 +420,8 @@ public class StudentsForm extends javax.swing.JFrame {
     }//GEN-LAST:event_deleteBtnActionPerformed
 
     private void studTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_studTableMouseClicked
+        studgender.setEditable(false);
+        studid.setEditable(false);
         int[] selectRow = studTable.getSelectedRows();
         if (selectRow.length > 0) {
             stdid = (String) studTable.getValueAt(selectRow[0], 0);
@@ -440,8 +440,37 @@ public class StudentsForm extends javax.swing.JFrame {
             studgender.setText(sgender);
             String syr = (String) studTable.getValueAt(selectRow[0], 5);
             yrlvl.setText(syr);
+            ShowEnrollRec();
         }
     }//GEN-LAST:event_studTableMouseClicked
+    private void ShowEnrollRec(){
+        DefaultTableModel tblmodel = (DefaultTableModel) enrollRecTable.getModel();
+        tblmodel.setRowCount(0);
+        EnrollmentSystem b = new EnrollmentSystem();
+        b.DBConnect();
+        
+        String searchText = search.getText();
+        if (searchText.equals("Search")) searchText = ""; // HOPEFULLY shows tables after saving
+    
+        
+        try{
+            String query = "select * from subjects where subjid in (select subjid from enroll where studid ='" + stdid + "')";
+            b.rs = b.st.executeQuery(query);
+            System.out.println("Success with sql!");  
+            
+            while (b.rs.next()){
+                String i = b.rs.getString("subjid");
+                String c = b.rs.getString("subjcode");
+                String d = b.rs.getString("subjdesc");
+                String t = b.rs.getString("subjunits");
+                String g = b.rs.getString("subjsched");
+                String[] items = {i,c,d,t,g};
+                tblmodel.addRow(items); //array
+            }
+        }catch (Exception ex){
+            System.out.print("not Success with sql!");
+        }
+    }   
     public static int okcancel(String theMessage){
         int result = JOptionPane.showConfirmDialog((Component) null, theMessage, "alert", JOptionPane.OK_CANCEL_OPTION);
         return result;
@@ -471,11 +500,52 @@ public class StudentsForm extends javax.swing.JFrame {
     }//GEN-LAST:event_DatabaseActionPerformed
 
     private void EnrollSubjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EnrollSubjectActionPerformed
+        //checks
+        if (stdid == null || stdid.trim().isEmpty()) {
+            messagebox("Please select a student from the table first!", "Enroll");
+            return;
+        }
         Enroll a = new Enroll();
+        if (a.getSubjid() == 0) {
+            messagebox("Please select a subject from the Subjects window first!", "Enroll");
+            return;
+        }
         
-        int i = okcancel("Enroll Student ID:" + stdid + " to subject ID:"  + a.getSubjectID());
-        
+        int i = okcancel("Enroll Student ID:" + stdid + " to subject ID:"  + a.getSubjid() + "?");
+        if(i==0){
+            messagebox("Enrolled " + stdid, "enroll");
+            a.enrollStud(Integer.parseInt(stdid));
+            ShowEnrollRec();
+        }else{
+            messagebox("Cancel Enroll" + stdid, "enroll");
+        }
     }//GEN-LAST:event_EnrollSubjectActionPerformed
+
+    private void studgenderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_studgenderActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_studgenderActionPerformed
+
+    private void DropSubjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DropSubjectActionPerformed
+         if (stdid == null || stdid.trim().isEmpty()) {
+            messagebox("Please select a student from the table first!", "Drop Subject");
+            return;
+        }
+        int row = enrollRecTable.getSelectedRow();
+        if (row < 0) {
+            messagebox("Please select an enrolled subject from the table to drop!", "Drop Subject");
+            return;
+        }
+        int subjectToDrop = Integer.parseInt(enrollRecTable.getValueAt(row, 0).toString());
+        int i = okcancel("Are you sure you want to drop Student ID: " + stdid + " from Subject ID: " + subjectToDrop + "?");
+        if (i == 0) {
+            Enroll a = new Enroll();
+            String msg = a.dropStud(Integer.parseInt(stdid), subjectToDrop);
+            messagebox(msg, "Drop Subject");
+            ShowEnrollRec(); // Refresh table so the dropped subject disappears!
+        } else {
+            messagebox("Drop cancelled.", "Drop Subject");
+        }
+    }//GEN-LAST:event_DropSubjectActionPerformed
 
     /**
      * @param args the command line arguments
@@ -511,7 +581,8 @@ public class StudentsForm extends javax.swing.JFrame {
     yrlvl.setText("");
     
     // Unlock the ID field for entering new student records
-    studid.setEditable(true);
+    studid.setEditable(false);
+    studgender.setEditable(true);
 }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -520,6 +591,7 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JButton EnrollSubject;
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton editBtn;
+    private javax.swing.JTable enrollRecTable;
     private javax.swing.JMenuItem firstSem;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
@@ -530,6 +602,7 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
@@ -537,7 +610,6 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JMenu open;
     private javax.swing.JButton saveBtn;
     private javax.swing.JTextField search;

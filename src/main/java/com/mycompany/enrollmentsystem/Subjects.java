@@ -9,26 +9,23 @@ package com.mycompany.enrollmentsystem;
  * @author euri
  */
 public class Subjects {
-    public void newsubject(int subjid, String subjcode, String subjdesc, String subjunit, String subjsched){
+    public void newsubject(String subjcode, String subjdesc, String subjunit, String subjsched){
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
         
         try{
-            String query = "insert into Subjects values(" 
-                    + subjid + ", '" 
-                    + subjcode + "' , '" 
-                    + subjdesc + "' , '" 
-                    + subjunit + "' , '"
-                    + subjsched + "' )";   
+            String query = "insert into subjects (subjcode, subjdesc, subjunits, subjsched) values('" 
+                    + subjcode + "', '" 
+                    + subjdesc + "', '" 
+                    + subjunit + "', '"
+                    + subjsched + "')";   
             int update = b.st.executeUpdate(query);
             System.out.println("Success with sql!");  
-            
             
         }catch (Exception ex){
             System.out.print("not Success with sql!");
             ex.printStackTrace();
         }
-     
     }
     
     public void deleteSubjects(int subjid){

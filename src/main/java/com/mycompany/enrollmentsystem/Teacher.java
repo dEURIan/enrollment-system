@@ -9,26 +9,23 @@ package com.mycompany.enrollmentsystem;
  * @author euri
  */
 public class Teacher {
-    public void newteacher(int tid, String tname, String tdept, String tcontact){
-            EnrollmentSystem b = new EnrollmentSystem();
-            b.DBConnect();
+        public void newteacher(String tname, String tdept, String tcontact){
+        EnrollmentSystem b = new EnrollmentSystem();
+        b.DBConnect();
 
-            try{
-                String query = "insert into teachers values(" 
-                        + tid + ", '" 
-                        + tname + "' , '" 
-                        + tdept + "' , '" 
-                        + tcontact + "' )";   
-                int update = b.st.executeUpdate(query);
-                System.out.println("Success with sql!");  
+        try{
+            String query = "insert into teachers (tname, tdept, tcontact) values('" 
+                    + tname + "', '" 
+                    + tdept + "', '" 
+                    + tcontact + "')";   
+            int update = b.st.executeUpdate(query);
+            System.out.println("Success with sql!");  
 
-
-            }catch (Exception ex){
-                System.out.print("not Success with sql!");
-                ex.printStackTrace();
-            }
-
+        }catch (Exception ex){
+            System.out.print("not Success with sql!");
+            ex.printStackTrace();
         }
+    }
 
         public void deleteteacher(int tid){
             EnrollmentSystem b = new EnrollmentSystem();

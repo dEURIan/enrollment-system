@@ -4,32 +4,26 @@
  */
 package com.mycompany.enrollmentsystem;
 
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ualfante
  */
 public class Students {
-    public void newstudent(int studid, String studname, String studadd, String studcrs, String studgender, String yrlvl){
+    public void newstudent(String studname, String studadd, String studcrs, String studgender, String yrlvl) {
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
-        
-        try{
-            String query = "insert into Students values(" 
-                    + studid + ", '" 
-                    + studname + "' , '" 
-                    + studadd + "' , '" 
-                    + studcrs + "' , '"
-                    + studgender + "' , '" 
-                    + yrlvl+ "' )";   
-            int update = b.st.executeUpdate(query);
-            System.out.println("Success with sql!");  
-            
-            
-        }catch (Exception ex){
-            System.out.print("not Success with sql!");
-            ex.printStackTrace();
+
+        String query = "INSERT INTO students (studname, studadd, studcrs, studgender, yrlvl) "
+                     + "VALUES ('" + studname + "', '" + studadd + "', '" + studcrs + "', '" + studgender + "', '" + yrlvl + "')";
+        try {
+            b.st.executeUpdate(query);
+            JOptionPane.showMessageDialog(null, "Student added successfully!");
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error adding student: " + ex.getMessage());
         }
-     
     }
     
     public void deleteStudent(int studid){
