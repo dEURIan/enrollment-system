@@ -15,12 +15,24 @@ public class Students {
     public void newstudent(String studname, String studadd, String studcrs, String studgender, String yrlvl) {
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
-
         String query = "INSERT INTO students (studname, studadd, studcrs, studgender, yrlvl) "
                      + "VALUES ('" + studname + "', '" + studadd + "', '" + studcrs + "', '" + studgender + "', '" + yrlvl + "')";
         try {
             b.st.executeUpdate(query);
-            JOptionPane.showMessageDialog(null, "Student added successfully!");
+            b.rs = b.st.executeQuery("SELECT LAST_INSERT_ID()");
+            int newid = 0;
+            if (b.rs.next()) {
+                newid = b.rs.getInt(1);
+            }
+            String username = newid + studname;
+            String password = String.valueOf(newid);
+            try {
+                b.st.executeUpdate("CREATE USER IF NOT EXISTS '" + username + "'@'localhost' IDENTIFIED BY '" + password + "'");
+                b.st.executeUpdate("GRANT SELECT ON `" + EnrollmentSystem.currentDB + "`.* TO '" + username + "'@'localhost'");
+                b.st.executeUpdate("FLUSH PRIVILEGES");
+            } catch (Exception e) {
+            }
+            JOptionPane.showMessageDialog(null, "Student added successfully!\nUsername: " + username + "\nPassword: " + password);
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(null, "Error adding student: " + ex.getMessage());
         }

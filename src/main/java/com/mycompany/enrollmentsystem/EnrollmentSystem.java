@@ -22,14 +22,73 @@ public class EnrollmentSystem {
     Statement st;
 
     static ResultSet rs; 
+    public static String currentDB = ""; 
+    public static String userRole = "admin"; 
     
     public String newdb (String term){
         DBConnect();
         int year = Calendar.getInstance().get(Calendar.YEAR);
         String schyear = "SY" + year+"_"+(year+1);
-        String query = "create database if not exists " + term;
         try{
+            String query = "create database if not exists " + term + "_" + schyear;
             st.executeUpdate(query);
+            
+            String query2 = "use " + term +"_" + schyear;
+            st.executeUpdate(query2);
+            
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS students (" +
+                            "studid INT NOT NULL AUTO_INCREMENT," +
+                            "studname VARCHAR(100) NOT NULL," +
+                            "studadd VARCHAR(255) NULL," +
+                            "studcrs VARCHAR(100) NULL," +
+                            "studgender VARCHAR(20) NULL," +
+                            "yrlvl VARCHAR(20) NULL," +
+                            "PRIMARY KEY (studid)) AUTO_INCREMENT = 100;");
+
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS subjects (" +
+                            "subjid INT NOT NULL AUTO_INCREMENT," +
+                            "subjcode VARCHAR(50) NULL DEFAULT NULL," +
+                            "subjdesc VARCHAR(255) NULL DEFAULT NULL," +
+                            "subjunits INT NULL DEFAULT NULL," +
+                            "subjsched VARCHAR(100) NULL," +
+                            "PRIMARY KEY (subjid)) AUTO_INCREMENT = 200;");
+
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS teachers (" +
+                            "tid INT NOT NULL AUTO_INCREMENT," +
+                            "tname VARCHAR(100) NULL DEFAULT NULL," +
+                            "tdept VARCHAR(100) NULL DEFAULT NULL," +
+                            "tadd VARCHAR(255) NULL," +
+                            "tcontact VARCHAR(50) NULL," +
+                            "tstatus VARCHAR(50) NULL," +
+                            "PRIMARY KEY (tid)) AUTO_INCREMENT = 300;");
+
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS assign (" +
+                            "assignid INT NOT NULL AUTO_INCREMENT," +
+                            "SubjID INT NOT NULL UNIQUE," +
+                            "TID INT NOT NULL," +
+                            "PRIMARY KEY (assignid)," +
+                            "FOREIGN KEY (SubjID) REFERENCES subjects(subjid)," +
+                            "FOREIGN KEY (TID) REFERENCES teachers(tid));");
+
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS enroll (" +
+                            "eid INT NOT NULL AUTO_INCREMENT," +
+                            "studid INT NULL DEFAULT NULL," +
+                            "subjid INT NULL DEFAULT NULL," +
+                            "evaluation VARCHAR(255) DEFAULT NULL," +
+                            "PRIMARY KEY (eid)," +
+                            "UNIQUE (studid, subjid)," +
+                            "FOREIGN KEY (studid) REFERENCES students(studid)," +
+                            "FOREIGN KEY (subjid) REFERENCES subjects(subjid));");
+
+            st.executeUpdate("CREATE TABLE IF NOT EXISTS grades (" +
+                            "gradeid INT NOT NULL AUTO_INCREMENT," +
+                            "enroll_eid INT NOT NULL UNIQUE," +
+                            "prelim VARCHAR(10) NULL DEFAULT NULL," +
+                            "midterm VARCHAR(10) NULL DEFAULT NULL," +
+                            "prefinal VARCHAR(10) NULL DEFAULT NULL," +
+                            "final VARCHAR(10) NULL DEFAULT NULL," +
+                            "PRIMARY KEY (gradeid)," +
+                            "FOREIGN KEY (enroll_eid) REFERENCES enroll(eid));");
         }catch(Exception ex){
             System.out.println(ex);
         }
@@ -37,9 +96,8 @@ public class EnrollmentSystem {
     }
     
     public static void main(String[] args) { 
-      StudentsForm a = new StudentsForm();
-      a.setVisible(true);
-      a.showRecords();      
+      Login a = new Login();
+      a.setVisible(true);       
     }
     
     public boolean DBConnect(){
@@ -48,8 +106,8 @@ public class EnrollmentSystem {
 
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/enrollmentsystem?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
-             "root", "root"); //(db, user, pass)
+            "jdbc:mysql://localhost:3306/" + currentDB + "?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
+             "root", "root");
 
             st = con.createStatement();  
 
@@ -79,5 +137,20 @@ public class EnrollmentSystem {
     }
     return false;
 }
+
+    boolean DBConnectUser(String user, String pass, String dbName) {
+            try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            con = DriverManager.getConnection(
+                "jdbc:mysql://localhost:3306/" + dbName + "?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
+                user,
+                pass
+            );
+            st = con.createStatement();
+            return true;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
 }
     

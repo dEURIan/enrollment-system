@@ -1,0 +1,62 @@
+CREATE DATABASE IF NOT EXISTS `1st_sy2026_2027`;
+USE `1st_sy2026_2027`;
+
+CREATE TABLE IF NOT EXISTS students (
+    studid INT NOT NULL AUTO_INCREMENT,
+    studname VARCHAR(100) NOT NULL,
+    studadd VARCHAR(255) NULL,
+    studcrs VARCHAR(100) NULL,
+    studgender VARCHAR(20) NULL,
+    yrlvl VARCHAR(20) NULL,
+    PRIMARY KEY (studid)
+) AUTO_INCREMENT = 100;
+
+CREATE TABLE IF NOT EXISTS subjects (
+    subjid INT NOT NULL AUTO_INCREMENT,
+    subjcode VARCHAR(50) NULL DEFAULT NULL,
+    subjdesc VARCHAR(255) NULL DEFAULT NULL,
+    subjunits INT NULL DEFAULT NULL,
+    subjsched VARCHAR(100) NULL,
+    PRIMARY KEY (subjid)
+) AUTO_INCREMENT = 200;
+
+CREATE TABLE IF NOT EXISTS teachers (
+    tid INT NOT NULL AUTO_INCREMENT,
+    tname VARCHAR(100) NULL DEFAULT NULL,
+    tdept VARCHAR(100) NULL DEFAULT NULL,
+    tadd VARCHAR(255) NULL,
+    tcontact VARCHAR(50) NULL,
+    tstatus VARCHAR(50) NULL,
+    PRIMARY KEY (tid)
+) AUTO_INCREMENT = 300;
+
+CREATE TABLE IF NOT EXISTS assign (
+    assignid INT NOT NULL AUTO_INCREMENT,
+    SubjID INT NOT NULL UNIQUE,
+    TID INT NOT NULL,
+    PRIMARY KEY (assignid),
+    FOREIGN KEY (SubjID) REFERENCES subjects(subjid),
+    FOREIGN KEY (TID) REFERENCES teachers(tid)
+);
+
+CREATE TABLE IF NOT EXISTS enroll (
+    eid INT NOT NULL AUTO_INCREMENT,
+    studid INT NULL DEFAULT NULL,
+    subjid INT NULL DEFAULT NULL,
+    evaluation VARCHAR(255) DEFAULT NULL,
+    PRIMARY KEY (eid),
+    UNIQUE (studid, subjid),
+    FOREIGN KEY (studid) REFERENCES students(studid),
+    FOREIGN KEY (subjid) REFERENCES subjects(subjid)
+);
+
+CREATE TABLE IF NOT EXISTS grades (
+    gradeid INT NOT NULL AUTO_INCREMENT,
+    enroll_eid INT NOT NULL UNIQUE,
+    prelim VARCHAR(10) NULL DEFAULT NULL,
+    midterm VARCHAR(10) NULL DEFAULT NULL,
+    prefinal VARCHAR(10) NULL DEFAULT NULL,
+    final VARCHAR(10) NULL DEFAULT NULL,
+    PRIMARY KEY (gradeid),
+    FOREIGN KEY (enroll_eid) REFERENCES enroll(eid)
+);

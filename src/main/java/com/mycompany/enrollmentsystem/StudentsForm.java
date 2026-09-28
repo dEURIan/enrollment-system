@@ -100,9 +100,11 @@ public class StudentsForm extends javax.swing.JFrame {
         open = new javax.swing.JMenu();
         subjects = new javax.swing.JMenuItem();
         teachers = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
         Database = new javax.swing.JMenu();
-        firstSem = new javax.swing.JMenuItem();
+        make1stSemDB = new javax.swing.JMenuItem();
+        make2ndSemDB = new javax.swing.JMenuItem();
+        makeSummerDB = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
 
         jMenu1.setText("jMenu1");
 
@@ -229,17 +231,25 @@ public class StudentsForm extends javax.swing.JFrame {
 
         jMenuBar1.add(open);
 
-        jMenu2.setText("Edit");
-        jMenuBar1.add(jMenu2);
-
         Database.setText("Database");
         Database.addActionListener(this::DatabaseActionPerformed);
 
-        firstSem.setText("1st Sem");
-        firstSem.addActionListener(this::firstSemActionPerformed);
-        Database.add(firstSem);
+        make1stSemDB.setText("1st sem");
+        make1stSemDB.addActionListener(this::make1stSemDBActionPerformed);
+        Database.add(make1stSemDB);
+
+        make2ndSemDB.setText("2nd sem");
+        make2ndSemDB.addActionListener(this::make2ndSemDBActionPerformed);
+        Database.add(make2ndSemDB);
+
+        makeSummerDB.setText("Summer");
+        makeSummerDB.addActionListener(this::makeSummerDBActionPerformed);
+        Database.add(makeSummerDB);
 
         jMenuBar1.add(Database);
+
+        jMenu2.setText("Edit");
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -286,8 +296,9 @@ public class StudentsForm extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(editBtn)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(deleteBtn)))
-                        .addGap(695, 695, 695))
+                                .addComponent(deleteBtn))
+                            .addComponent(jLabel1))
+                        .addGap(659, 659, 659))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -297,17 +308,12 @@ public class StudentsForm extends javax.swing.JFrame {
                             .addComponent(jScrollPane1)
                             .addComponent(jScrollPane2))
                         .addContainerGap())))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(243, 243, 243)
-                .addComponent(jLabel1)
-                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(35, 35, 35)
+                .addGap(41, 41, 41)
                 .addComponent(search, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -490,11 +496,6 @@ public class StudentsForm extends javax.swing.JFrame {
        z.setVisible(true);
     }//GEN-LAST:event_teachersActionPerformed
 
-    private void firstSemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_firstSemActionPerformed
-        EnrollmentSystem db = new EnrollmentSystem();
-        db.newdb("1st");
-    }//GEN-LAST:event_firstSemActionPerformed
-
     private void DatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DatabaseActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_DatabaseActionPerformed
@@ -547,6 +548,21 @@ public class StudentsForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_DropSubjectActionPerformed
 
+    private void make1stSemDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_make1stSemDBActionPerformed
+        EnrollmentSystem a = new EnrollmentSystem();
+        messagebox(a.newdb("1st"), "success");
+    }//GEN-LAST:event_make1stSemDBActionPerformed
+
+    private void make2ndSemDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_make2ndSemDBActionPerformed
+        EnrollmentSystem a = new EnrollmentSystem();
+        messagebox(a.newdb("2nd"), "success");
+    }//GEN-LAST:event_make2ndSemDBActionPerformed
+
+    private void makeSummerDBActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_makeSummerDBActionPerformed
+        EnrollmentSystem a = new EnrollmentSystem();
+        messagebox(a.newdb("Summer"), "success");
+    }//GEN-LAST:event_makeSummerDBActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -592,7 +608,6 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JButton deleteBtn;
     private javax.swing.JButton editBtn;
     private javax.swing.JTable enrollRecTable;
-    private javax.swing.JMenuItem firstSem;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -610,6 +625,9 @@ public class StudentsForm extends javax.swing.JFrame {
     private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JMenuItem make1stSemDB;
+    private javax.swing.JMenuItem make2ndSemDB;
+    private javax.swing.JMenuItem makeSummerDB;
     private javax.swing.JMenu open;
     private javax.swing.JButton saveBtn;
     private javax.swing.JTextField search;
