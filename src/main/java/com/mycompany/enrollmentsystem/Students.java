@@ -53,8 +53,49 @@ public class Students {
             if (b.rs.next()) {
                 studname = b.rs.getString("studname");
             }
-            String query = "delete from students where studid = " + studid;
-            b.st.executeUpdate(query);
+
+            java.util.List<String> dbs = new java.util.ArrayList<>();
+            try {
+                b.rs = b.st.executeQuery("SHOW DATABASES LIKE '%_SY%'");
+                while (b.rs.next()) {
+                    dbs.add(b.rs.getString(1));
+                }
+            } catch (Exception e) {
+            }
+            if (dbs.isEmpty()) {
+                int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                String schyear = "SY" + year + "_" + (year + 1);
+                String[] terms = {"1st", "2nd", "Summer"};
+                for (String term : terms) {
+                    dbs.add(term + "_" + schyear);
+                }
+            }
+            if (!dbs.contains(EnrollmentSystem.currentDB) && !EnrollmentSystem.currentDB.isEmpty()) {
+                dbs.add(EnrollmentSystem.currentDB);
+            }
+
+            if (studname.isEmpty()) {
+                for (String db : dbs) {
+                    try {
+                        b.rs = b.st.executeQuery("SELECT studname FROM `" + db + "`.students WHERE studid = " + studid);
+                        if (b.rs.next()) {
+                            studname = b.rs.getString("studname");
+                            break;
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
+            for (String db : dbs) {
+                try {
+                    b.st.executeUpdate("DELETE FROM `" + db + "`.grades WHERE enroll_eid IN (SELECT eid FROM `" + db + "`.enroll WHERE studid = " + studid + ")");
+                    b.st.executeUpdate("DELETE FROM `" + db + "`.enroll WHERE studid = " + studid);
+                    b.st.executeUpdate("DELETE FROM `" + db + "`.students WHERE studid = " + studid);
+                } catch (Exception e) {
+                }
+            }
+
             if (studname != null && !studname.isEmpty()) {
                 String username = studid + studname;
                 try {

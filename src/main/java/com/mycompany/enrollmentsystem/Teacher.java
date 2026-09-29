@@ -54,8 +54,48 @@ public class Teacher {
                 if (b.rs.next()) {
                     tname = b.rs.getString("tname");
                 }
-                String query = "delete from teachers where tid = " + tid;
-                b.st.executeUpdate(query);
+
+                java.util.List<String> dbs = new java.util.ArrayList<>();
+                try {
+                    b.rs = b.st.executeQuery("SHOW DATABASES LIKE '%_SY%'");
+                    while (b.rs.next()) {
+                        dbs.add(b.rs.getString(1));
+                    }
+                } catch (Exception e) {
+                }
+                if (dbs.isEmpty()) {
+                    int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                    String schyear = "SY" + year + "_" + (year + 1);
+                    String[] terms = {"1st", "2nd", "Summer"};
+                    for (String term : terms) {
+                        dbs.add(term + "_" + schyear);
+                    }
+                }
+                if (!dbs.contains(EnrollmentSystem.currentDB) && !EnrollmentSystem.currentDB.isEmpty()) {
+                    dbs.add(EnrollmentSystem.currentDB);
+                }
+
+                if (tname.isEmpty()) {
+                    for (String db : dbs) {
+                        try {
+                            b.rs = b.st.executeQuery("SELECT tname FROM `" + db + "`.teachers WHERE tid = " + tid);
+                            if (b.rs.next()) {
+                                tname = b.rs.getString("tname");
+                                break;
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+
+                for (String db : dbs) {
+                    try {
+                        b.st.executeUpdate("DELETE FROM `" + db + "`.assign WHERE TID = " + tid);
+                        b.st.executeUpdate("DELETE FROM `" + db + "`.teachers WHERE tid = " + tid);
+                    } catch (Exception e) {
+                    }
+                }
+
                 if (tname != null && !tname.isEmpty()) {
                     String username = tid + tname;
                     try {
