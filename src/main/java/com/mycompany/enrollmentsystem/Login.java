@@ -166,7 +166,7 @@ public class Login extends javax.swing.JFrame {
                 String dbName = term + "_" + schyear;
                 if (test.DBConnectUser("root", "root", dbName)) {
                     loginSuccess = true;
-                    jComboBox1.addItem(term);
+                    jComboBox1.addItem(dbName);
                 }
             }
             if (!loginSuccess) {
@@ -180,7 +180,7 @@ public class Login extends javax.swing.JFrame {
             String dbName = term + "_" + schyear;
             if (test.DBConnectUser(user, pass, dbName)) {
                 loginSuccess = true;
-                jComboBox1.addItem(term);
+                jComboBox1.addItem(dbName);
             }
         }
         if (loginSuccess) {
@@ -198,9 +198,7 @@ public class Login extends javax.swing.JFrame {
         String user = Username.getText().trim();
         String pass = new String(Password.getPassword()).trim();
         String selected = jComboBox1.getSelectedItem().toString();
-        int year = Calendar.getInstance().get(Calendar.YEAR);
-        String schyear = "SY" + year + "_" + (year + 1);
-        String dbName = selected + "_" + schyear;
+        String dbName = selected;
         EnrollmentSystem.currentDB = dbName;
         EnrollmentSystem b = new EnrollmentSystem();
         if (user.equals("root") && pass.equals("root")) {
