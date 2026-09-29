@@ -15,15 +15,20 @@ public class Students {
     public void newstudent(String studname, String studadd, String studcrs, String studgender, String yrlvl) {
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
-        String query = "INSERT INTO students (studname, studadd, studcrs, studgender, yrlvl) "
-                     + "VALUES ('" + studname + "', '" + studadd + "', '" + studcrs + "', '" + studgender + "', '" + yrlvl + "')";
         try {
-            b.st.executeUpdate(query);
-            b.rs = b.st.executeQuery("SELECT LAST_INSERT_ID()");
-            int newid = 0;
-            if (b.rs.next()) {
-                newid = b.rs.getInt(1);
+            int newid = 100;
+            String idQuery = "SELECT studid FROM students ORDER BY studid ASC";
+            b.rs = b.st.executeQuery(idQuery);
+            while (b.rs.next()) {
+                if (b.rs.getInt("studid") == newid) {
+                    newid++;
+                } else {
+                    break;
+                }
             }
+            String query = "INSERT INTO students (studid, studname, studadd, studcrs, studgender, yrlvl) "
+                         + "VALUES (" + newid + ", '" + studname + "', '" + studadd + "', '" + studcrs + "', '" + studgender + "', '" + yrlvl + "')";
+            b.st.executeUpdate(query);
             String username = newid + studname;
             String password = String.valueOf(newid);
             try {

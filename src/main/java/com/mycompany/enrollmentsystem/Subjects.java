@@ -14,7 +14,18 @@ public class Subjects {
         b.DBConnect();
         
         try{
-            String query = "insert into subjects (subjcode, subjdesc, subjunits, subjsched) values('" 
+            int newid = 200;
+            String idQuery = "SELECT subjid FROM subjects ORDER BY subjid ASC";
+            b.rs = b.st.executeQuery(idQuery);
+            while (b.rs.next()) {
+                if (b.rs.getInt("subjid") == newid) {
+                    newid++;
+                } else {
+                    break;
+                }
+            }
+            String query = "insert into subjects (subjid, subjcode, subjdesc, subjunits, subjsched) values(" 
+                    + newid + ", '" 
                     + subjcode + "', '" 
                     + subjdesc + "', '" 
                     + subjunit + "', '"

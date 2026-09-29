@@ -13,16 +13,22 @@ public class Teacher {
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
         try{
-            String query = "insert into teachers (tname, tdept, tcontact) values('" 
+            int newid = 300;
+            String idQuery = "SELECT tid FROM teachers ORDER BY tid ASC";
+            b.rs = b.st.executeQuery(idQuery);
+            while (b.rs.next()) {
+                if (b.rs.getInt("tid") == newid) {
+                    newid++;
+                } else {
+                    break;
+                }
+            }
+            String query = "insert into teachers (tid, tname, tdept, tcontact) values(" 
+                    + newid + ", '" 
                     + tname + "', '" 
                     + tdept + "', '" 
                     + tcontact + "')";   
             b.st.executeUpdate(query);
-            b.rs = b.st.executeQuery("SELECT LAST_INSERT_ID()");
-            int newid = 0;
-            if (b.rs.next()) {
-                newid = b.rs.getInt(1);
-            }
             String username = newid + tname;
             String password = String.valueOf(newid);
             try {
