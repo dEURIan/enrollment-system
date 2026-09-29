@@ -130,23 +130,8 @@ public class Login extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_UsernameActionPerformed
    public boolean checkLogin(String user, String pass) {
-        if (user.equals("root") && pass.equals("root")) {
-            return true;
-        }
-        
         EnrollmentSystem b = new EnrollmentSystem();
-        b.DBConnect();
-        try {
-            String query = "select * from users where username = '" + user + "' and password = '" + pass + "'";
-            b.rs = b.st.executeQuery(query);
-            if (b.rs.next()) {
-                return true; 
-            }
-        } catch (Exception ex) {
-            System.out.println("User check: " + ex);
-        }
-        
-        return false;
+        return b.DBConnectUser(user, pass, "");
     }
     private void LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginActionPerformed
         String user = Username.getText().trim();
@@ -161,19 +146,8 @@ public class Login extends javax.swing.JFrame {
         jComboBox1.removeAllItems();
         boolean loginSuccess = false;
         EnrollmentSystem test = new EnrollmentSystem();
-        if (user.equals("root") && pass.equals("root")) {
-            for (String term : terms) {
-                String dbName = term + "_" + schyear;
-                if (test.DBConnectUser("root", "root", dbName)) {
-                    loginSuccess = true;
-                    jComboBox1.addItem(dbName);
-                }
-            }
-            if (!loginSuccess) {
-                JOptionPane.showMessageDialog(this, "No databases created yet!", "Login", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            JOptionPane.showMessageDialog(this, "Admin login successful! Please select a database and click Submit.", "Login", JOptionPane.INFORMATION_MESSAGE);
+        if (!test.DBConnectUser(user, pass, "")) {
+            JOptionPane.showMessageDialog(this, "Invalid username or password!", "Login Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         for (String term : terms) {
@@ -186,7 +160,7 @@ public class Login extends javax.swing.JFrame {
         if (loginSuccess) {
             JOptionPane.showMessageDialog(this, "Login successful! Please select a database and click Submit.", "Login", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            JOptionPane.showMessageDialog(this, "Invalid username or password!", "Login Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "No databases accessible for this user!", "Login", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_LoginActionPerformed
 
@@ -200,15 +174,30 @@ public class Login extends javax.swing.JFrame {
         String selected = jComboBox1.getSelectedItem().toString();
         String dbName = selected;
         EnrollmentSystem.currentDB = dbName;
+        EnrollmentSystem.currentUser = user;
+        EnrollmentSystem.currentPass = pass;
         EnrollmentSystem b = new EnrollmentSystem();
-        if (user.equals("root") && pass.equals("root")) {
-            EnrollmentSystem.userRole = "admin";
-            StudentsForm a = new StudentsForm();
-            a.setVisible(true);
-            a.showRecords();
-            this.dispose();
-        } else {
-            if (b.DBConnectUser(user, pass, dbName)) {
+        if (b.DBConnectUser(user, pass, dbName)) {
+            boolean isAdmin = false;
+            try {
+                b.rs = b.st.executeQuery("SHOW GRANTS");
+                while (b.rs.next()) {
+                    String grant = b.rs.getString(1).toUpperCase();
+                    if (grant.contains("ALL PRIVILEGES") || grant.contains("INSERT") || grant.contains("CREATE") || grant.contains("GRANT OPTION")) {
+                        isAdmin = true;
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+            }
+
+            if (isAdmin) {
+                EnrollmentSystem.userRole = "admin";
+                StudentsForm a = new StudentsForm();
+                a.setVisible(true);
+                a.showRecords();
+                this.dispose();
+            } else {
                 try {
                     int userId = Integer.parseInt(user.replaceAll("[^0-9]", ""));
                     if (userId >= 100 && userId < 300) {
@@ -231,9 +220,9 @@ public class Login extends javax.swing.JFrame {
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(null, "Invalid user format!", "Login Error", JOptionPane.ERROR_MESSAGE);
                 }
-            } else {
-                JOptionPane.showMessageDialog(null, "Connection failed to " + dbName, "Login Error", JOptionPane.ERROR_MESSAGE);
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Connection failed to " + dbName, "Login Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_SubmitActionPerformed
 

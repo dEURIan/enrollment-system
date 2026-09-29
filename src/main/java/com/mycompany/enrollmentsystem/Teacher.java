@@ -42,8 +42,22 @@ public class Teacher {
             EnrollmentSystem b = new EnrollmentSystem();
             b.DBConnect();
             try{
+                String nameQuery = "select tname from teachers where tid = " + tid;
+                b.rs = b.st.executeQuery(nameQuery);
+                String tname = "";
+                if (b.rs.next()) {
+                    tname = b.rs.getString("tname");
+                }
                 String query = "delete from teachers where tid = " + tid;
                 b.st.executeUpdate(query);
+                if (tname != null && !tname.isEmpty()) {
+                    String username = tid + tname;
+                    try {
+                        b.st.executeUpdate("DROP USER IF EXISTS '" + username + "'@'localhost'");
+                        b.st.executeUpdate("FLUSH PRIVILEGES");
+                    } catch (Exception e) {
+                    }
+                }
                 System.out.println("Deleted successfully!");
             }catch (Exception ex){
                 System.out.println("not Success with sql!");

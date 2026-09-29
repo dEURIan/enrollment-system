@@ -24,6 +24,8 @@ public class EnrollmentSystem {
     static ResultSet rs; 
     public static String currentDB = ""; 
     public static String userRole = "admin"; 
+    public static String currentUser = "";
+    public static String currentPass = ""; 
     
     public String newdb (String term){
         DBConnect();
@@ -107,7 +109,7 @@ public class EnrollmentSystem {
             Class.forName("com.mysql.cj.jdbc.Driver");
             con = DriverManager.getConnection(
             "jdbc:mysql://localhost:3306/" + currentDB + "?zeroDateTimeBehavior=CONVERT_TO_NULL&useSSL=false&allowPublicKeyRetrieval=true",
-             "root", "root");
+             currentUser, currentPass);
 
             st = con.createStatement();  
 
