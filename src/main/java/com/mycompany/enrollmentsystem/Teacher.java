@@ -34,6 +34,7 @@ public class Teacher {
             try {
                 b.st.executeUpdate("CREATE USER IF NOT EXISTS '" + username + "'@'localhost' IDENTIFIED BY '" + password + "'");
                 b.st.executeUpdate("GRANT SELECT ON `" + EnrollmentSystem.currentDB + "`.* TO '" + username + "'@'localhost'");
+                b.st.executeUpdate("GRANT INSERT, UPDATE ON `" + EnrollmentSystem.currentDB + "`.grades TO '" + username + "'@'localhost'");
                 b.st.executeUpdate("FLUSH PRIVILEGES");
             } catch (Exception e) {
             }

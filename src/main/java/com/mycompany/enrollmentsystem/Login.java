@@ -178,17 +178,25 @@ public class Login extends javax.swing.JFrame {
         EnrollmentSystem.currentPass = pass;
         EnrollmentSystem b = new EnrollmentSystem();
         if (b.DBConnectUser(user, pass, dbName)) {
-            boolean isAdmin = false;
+            int userId = -1;
             try {
-                b.rs = b.st.executeQuery("SHOW GRANTS");
-                while (b.rs.next()) {
-                    String grant = b.rs.getString(1).toUpperCase();
-                    if (grant.contains("ALL PRIVILEGES") || grant.contains("INSERT") || grant.contains("CREATE") || grant.contains("GRANT OPTION")) {
-                        isAdmin = true;
-                        break;
-                    }
-                }
+                userId = Integer.parseInt(user.replaceAll("[^0-9]", ""));
             } catch (Exception e) {
+            }
+
+            boolean isAdmin = false;
+            if (userId < 100) {
+                try {
+                    b.rs = b.st.executeQuery("SHOW GRANTS");
+                    while (b.rs.next()) {
+                        String grant = b.rs.getString(1).toUpperCase();
+                        if (grant.contains("ALL PRIVILEGES") || grant.contains("INSERT") || grant.contains("CREATE") || grant.contains("GRANT OPTION")) {
+                            isAdmin = true;
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                }
             }
 
             if (isAdmin) {
@@ -197,29 +205,22 @@ public class Login extends javax.swing.JFrame {
                 a.setVisible(true);
                 a.showRecords();
                 this.dispose();
+            } else if (userId >= 100 && userId < 300) {
+                EnrollmentSystem.userRole = "student";
+                StudentSubjectPlaceholder a = new StudentSubjectPlaceholder();
+                a.setSize(this.getWidth(), this.getHeight());
+                a.setLocationRelativeTo(null);
+                a.setVisible(true);
+                this.dispose();
+            } else if (userId >= 300) {
+                EnrollmentSystem.userRole = "teacher";
+                GradesForm a = new GradesForm();
+                a.setSize(750, 650);
+                a.setLocationRelativeTo(null);
+                a.setVisible(true);
+                this.dispose();
             } else {
-                try {
-                    int userId = Integer.parseInt(user.replaceAll("[^0-9]", ""));
-                    if (userId >= 100 && userId < 300) {
-                        EnrollmentSystem.userRole = "student";
-                        StudentSubjectPlaceholder a = new StudentSubjectPlaceholder();
-                        a.setSize(this.getWidth(), this.getHeight());
-                        a.setLocationRelativeTo(null);
-                        a.setVisible(true);
-                        this.dispose();
-                    } else if (userId >= 300) {
-                        EnrollmentSystem.userRole = "teacher";
-                        GradesForm a = new GradesForm();
-                        a.setSize(this.getWidth(), this.getHeight());
-                        a.setLocationRelativeTo(null);
-                        a.setVisible(true);
-                        this.dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(null, "Unknown user role!", "Login Error", JOptionPane.ERROR_MESSAGE);
-                    }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(null, "Invalid user format!", "Login Error", JOptionPane.ERROR_MESSAGE);
-                }
+                JOptionPane.showMessageDialog(null, "Unknown user role!", "Login Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
             JOptionPane.showMessageDialog(null, "Connection failed to " + dbName, "Login Error", JOptionPane.ERROR_MESSAGE);
