@@ -34,10 +34,6 @@ public class CreatePDF {
             File folder = new File("C:\\docs");
             if (!folder.exists()) folder.mkdirs();
             File pdfFile = new File(folder, "report.pdf");
-            File logoFile = new File("logo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "logo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.jpeg");
 
             Document doc = new Document();
             PdfWriter.getInstance(doc, new FileOutputStream(pdfFile));
@@ -46,11 +42,7 @@ public class CreatePDF {
             PdfPTable header = new PdfPTable(new float[]{2f, 5f});
             header.setWidthPercentage(90f);
             header.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-            if (logoFile.exists()) {
-                header.addCell(Image.getInstance(logoFile.getAbsolutePath()));
-            } else {
-                header.addCell("Logo not found");
-            }
+            header.addCell(Image.getInstance("logo.png"));
             header.addCell(new Phrase("Pinoy Big Brother\nRegistrars Office\nStudent Grade Sheet", bfBold12));
             doc.add(header);
 
@@ -119,10 +111,6 @@ public class CreatePDF {
             File folder = new File("C:\\docs");
             if (!folder.exists()) folder.mkdirs();
             File pdfFile = new File(folder, "report.pdf");
-            File logoFile = new File("logo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "logo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.png");
-            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.jpeg");
 
             Document doc = new Document();
             PdfWriter.getInstance(doc, new FileOutputStream(pdfFile));
@@ -131,11 +119,7 @@ public class CreatePDF {
             PdfPTable header = new PdfPTable(new float[]{2f, 5f});
             header.setWidthPercentage(90f);
             header.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-            if (logoFile.exists()) {
-                header.addCell(Image.getInstance(logoFile.getAbsolutePath()));
-            } else {
-                header.addCell("Logo not found");
-            }
+            header.addCell(Image.getInstance("logo.png"));
             header.addCell(new Phrase("Pinoy Big Brother\nRegistrars Office\nOfficial Transcript of Records", bfBold12));
             doc.add(header);
 
