@@ -16,7 +16,7 @@ public class StudentGrade extends javax.swing.JFrame {
 
     public StudentGrade() {
         setTitle("Student Grade");
-        setSize(420, 200);
+        setSize(420, 240);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new FlowLayout(FlowLayout.CENTER, 15, 15));
@@ -38,9 +38,12 @@ public class StudentGrade extends javax.swing.JFrame {
         EnrollmentSystem b = new EnrollmentSystem();
         try {
             if (b.DBConnectUser(EnrollmentSystem.currentUser, EnrollmentSystem.currentPass, "")) {
-                b.rs = b.st.executeQuery("SHOW DATABASES LIKE '%sy%'");
+                b.rs = b.st.executeQuery("SHOW DATABASES");
                 while (b.rs.next()) {
-                    termCombo.addItem(b.rs.getString(1));
+                    String dbName = b.rs.getString(1);
+                    if (dbName.toUpperCase().contains("_SY")) {
+                        termCombo.addItem(dbName);
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -59,6 +62,11 @@ public class StudentGrade extends javax.swing.JFrame {
             }
         });
         add(viewBtn);
+
+        JButton torBtn = new JButton("View TOR (All Semesters)");
+        torBtn.setPreferredSize(new Dimension(220, 32));
+        torBtn.addActionListener(e -> new CreatePDF().generateTOR(finalUserId));
+        add(torBtn);
     }
 
     public static void main(String[] args) {

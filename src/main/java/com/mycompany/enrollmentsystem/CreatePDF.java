@@ -133,6 +133,48 @@ public class CreatePDF {
                 sYr = b.rs.getString(3);
             }
 
+            List<String> dbs = new ArrayList<>();
+            try {
+                b.rs = b.st.executeQuery("SHOW DATABASES");
+                while (b.rs.next()) {
+                    String dbName = b.rs.getString(1);
+                    if (dbName.toUpperCase().contains("_SY")) {
+                        dbs.add(dbName);
+                    }
+                }
+            } catch (Exception e) {
+            }
+            if (dbs.isEmpty()) {
+                int year = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+                String schyear = "SY" + year + "_" + (year + 1);
+                String[] terms = {"1st", "2nd", "Summer"};
+                for (String term : terms) {
+                    dbs.add(term + "_" + schyear);
+                }
+            }
+            if (!dbs.contains(EnrollmentSystem.currentDB) && !EnrollmentSystem.currentDB.isEmpty()) {
+                dbs.add(EnrollmentSystem.currentDB);
+            }
+            Collections.sort(dbs);
+
+            if (sName.isEmpty()) {
+                for (String db : dbs) {
+                    try {
+                        EnrollmentSystem tempDb = new EnrollmentSystem();
+                        if (tempDb.DBConnectUser(EnrollmentSystem.currentUser, EnrollmentSystem.currentPass, db)) {
+                            tempDb.rs = tempDb.st.executeQuery("SELECT studname, studcrs, yrlvl FROM students WHERE studid = " + studId);
+                            if (tempDb.rs.next()) {
+                                sName = tempDb.rs.getString(1);
+                                sCrs = tempDb.rs.getString(2);
+                                sYr = tempDb.rs.getString(3);
+                                break;
+                            }
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+
             PdfPTable info = new PdfPTable(2);
             info.setWidthPercentage(90f);
             info.setSpacingBefore(10f);
@@ -141,13 +183,6 @@ public class CreatePDF {
             insertCell(info, "Student Name: " + sName, Element.ALIGN_LEFT, 1, bfBold12, 0, 255, 255, 255);
             insertCell(info, "Year Level: " + (sYr != null ? sYr : ""), Element.ALIGN_LEFT, 1, bfBold12, 0, 255, 255, 255);
             doc.add(info);
-
-            List<String> dbs = new ArrayList<>();
-            b.rs = b.st.executeQuery("SHOW DATABASES LIKE '%_sy%'");
-            while (b.rs.next()) {
-                dbs.add(b.rs.getString(1));
-            }
-            Collections.sort(dbs);
 
             int totalSubjects = 0;
             for (String db : dbs) {
