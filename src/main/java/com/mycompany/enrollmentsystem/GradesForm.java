@@ -102,10 +102,10 @@ public class GradesForm extends javax.swing.JFrame {
             String pf = GradesTable.getValueAt(selectRow[0], 4) != null ? GradesTable.getValueAt(selectRow[0], 4).toString() : "";
             String f = GradesTable.getValueAt(selectRow[0], 5) != null ? GradesTable.getValueAt(selectRow[0], 5).toString() : "";
 
-            Prelim.setSelectedItem(p);
-            Midterms.setSelectedItem(m);
-            PreFinal.setSelectedItem(pf);
-            Final.setSelectedItem(f);
+            Prelim.setSelectedItem(p.equals("null") ? "" : p);
+            Midterms.setSelectedItem(m.equals("null") ? "" : m);
+            PreFinal.setSelectedItem(pf.equals("null") ? "" : pf);
+            Final.setSelectedItem(f.equals("null") ? "" : f);
         }
     }
 
@@ -128,13 +128,13 @@ public class GradesForm extends javax.swing.JFrame {
                 String id = b.rs.getString("studid");
                 String name = b.rs.getString("studname");
                 String prelim = b.rs.getString("prelim");
-                if (prelim == null) prelim = "";
+                if (prelim == null || prelim.trim().isEmpty()) prelim = "null";
                 String midterm = b.rs.getString("midterm");
-                if (midterm == null) midterm = "";
+                if (midterm == null || midterm.trim().isEmpty()) midterm = "null";
                 String prefinal = b.rs.getString("prefinal");
-                if (prefinal == null) prefinal = "";
+                if (prefinal == null || prefinal.trim().isEmpty()) prefinal = "null";
                 String finals = b.rs.getString("final");
-                if (finals == null) finals = "";
+                if (finals == null || finals.trim().isEmpty()) finals = "null";
                 String[] items = {id, name, prelim, midterm, prefinal, finals};
                 tblmodel.addRow(items);
             }
@@ -336,6 +336,11 @@ public class GradesForm extends javax.swing.JFrame {
         String pf = PreFinal.getSelectedItem() != null ? PreFinal.getSelectedItem().toString() : "";
         String f = Final.getSelectedItem() != null ? Final.getSelectedItem().toString() : "";
 
+        String pSql = (p == null || p.trim().isEmpty() || p.trim().equalsIgnoreCase("null")) ? "NULL" : "'" + p.trim() + "'";
+        String mSql = (m == null || m.trim().isEmpty() || m.trim().equalsIgnoreCase("null")) ? "NULL" : "'" + m.trim() + "'";
+        String pfSql = (pf == null || pf.trim().isEmpty() || pf.trim().equalsIgnoreCase("null")) ? "NULL" : "'" + pf.trim() + "'";
+        String fSql = (f == null || f.trim().isEmpty() || f.trim().equalsIgnoreCase("null")) ? "NULL" : "'" + f.trim() + "'";
+
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
 
@@ -351,10 +356,10 @@ public class GradesForm extends javax.swing.JFrame {
                     exists = true;
                 }
                 if (exists) {
-                    String updateQuery = "UPDATE grades SET prelim = '" + p + "', midterm = '" + m + "', prefinal = '" + pf + "', final = '" + f + "' WHERE enroll_eid = " + eid;
+                    String updateQuery = "UPDATE grades SET prelim = " + pSql + ", midterm = " + mSql + ", prefinal = " + pfSql + ", final = " + fSql + " WHERE enroll_eid = " + eid;
                     b.st.executeUpdate(updateQuery);
                 } else {
-                    String insertQuery = "INSERT INTO grades (enroll_eid, prelim, midterm, prefinal, final) VALUES (" + eid + ", '" + p + "', '" + m + "', '" + pf + "', '" + f + "')";
+                    String insertQuery = "INSERT INTO grades (enroll_eid, prelim, midterm, prefinal, final) VALUES (" + eid + ", " + pSql + ", " + mSql + ", " + pfSql + ", " + fSql + ")";
                     b.st.executeUpdate(insertQuery);
                 }
                 JOptionPane.showMessageDialog(null, "Grade saved successfully!");
