@@ -34,7 +34,10 @@ public class CreatePDF {
             File folder = new File("C:\\docs");
             if (!folder.exists()) folder.mkdirs();
             File pdfFile = new File(folder, "report.pdf");
-            File logoFile = new File(folder, "addulogo.jpeg");
+            File logoFile = new File("logo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "logo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.jpeg");
 
             Document doc = new Document();
             PdfWriter.getInstance(doc, new FileOutputStream(pdfFile));
@@ -48,7 +51,7 @@ public class CreatePDF {
             } else {
                 header.addCell("Logo not found");
             }
-            header.addCell(new Phrase("Ateneo De Davao University\nRegistrars Office\nStudent Grade Sheet", bfBold12));
+            header.addCell(new Phrase("Pinoy Big Brother\nRegistrars Office\nStudent Grade Sheet", bfBold12));
             doc.add(header);
 
             EnrollmentSystem b = new EnrollmentSystem();
@@ -116,7 +119,10 @@ public class CreatePDF {
             File folder = new File("C:\\docs");
             if (!folder.exists()) folder.mkdirs();
             File pdfFile = new File(folder, "report.pdf");
-            File logoFile = new File(folder, "addulogo.jpeg");
+            File logoFile = new File("logo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "logo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.png");
+            if (!logoFile.exists()) logoFile = new File(folder, "addulogo.jpeg");
 
             Document doc = new Document();
             PdfWriter.getInstance(doc, new FileOutputStream(pdfFile));
@@ -130,11 +136,11 @@ public class CreatePDF {
             } else {
                 header.addCell("Logo not found");
             }
-            header.addCell(new Phrase("Ateneo De Davao University\nRegistrars Office\nOfficial Transcript of Records", bfBold12));
+            header.addCell(new Phrase("Pinoy Big Brother\nRegistrars Office\nOfficial Transcript of Records", bfBold12));
             doc.add(header);
 
             EnrollmentSystem b = new EnrollmentSystem();
-            b.DBConnectUser("root", "root", EnrollmentSystem.currentDB);
+            b.DBConnectUser(EnrollmentSystem.currentUser, EnrollmentSystem.currentPass, EnrollmentSystem.currentDB);
             String sName = "", sCrs = "", sYr = "";
             b.rs = b.st.executeQuery("SELECT studname, studcrs, yrlvl FROM students WHERE studid = " + studId);
             if (b.rs.next()) {
@@ -162,7 +168,7 @@ public class CreatePDF {
             int totalSubjects = 0;
             for (String db : dbs) {
                 EnrollmentSystem semDb = new EnrollmentSystem();
-                if (!semDb.DBConnectUser("root", "root", db)) continue;
+                if (!semDb.DBConnectUser(EnrollmentSystem.currentUser, EnrollmentSystem.currentPass, db)) continue;
                 String q = "SELECT s.subjcode, s.subjdesc, s.subjunits, g.prelim, g.midterm, g.prefinal, g.final "
                          + "FROM enroll e "
                          + "INNER JOIN subjects s ON e.subjid = s.subjid "
