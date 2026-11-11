@@ -515,6 +515,12 @@ public class StudentsForm extends javax.swing.JFrame {
             messagebox("Please select a subject from the Subjects window first!", "Enroll");
             return;
         }
+
+        String conflict = a.checkScheduleConflict("student", Integer.parseInt(stdid), a.getSubjid());
+        if (conflict != null) {
+            JOptionPane.showMessageDialog(null, conflict, "Schedule Conflict", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         
         int i = okcancel("Enroll Student ID:" + stdid + " to subject ID:"  + a.getSubjid() + "?");
         if(i==0){

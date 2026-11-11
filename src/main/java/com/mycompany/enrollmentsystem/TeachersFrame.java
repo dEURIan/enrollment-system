@@ -410,10 +410,17 @@ public class TeachersFrame extends javax.swing.JFrame {
             messagebox("Please select a subject from the Subjects window first!", "Assign");
             return;
         }
+
+        int teacherId = Integer.parseInt(tid.getText().trim());
+        String conflict = a.checkScheduleConflict("teacher", teacherId, a.getSubjid());
+        if (conflict != null) {
+            JOptionPane.showMessageDialog(null, conflict, "Schedule Conflict", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         
         int i = okcancel("Assign Teacher ID: " + tid.getText() + " to Subject ID: " + a.getSubjid() + "?");
         if (i == 0) {
-            String msg = a.assignTeacher(Integer.parseInt(tid.getText()));
+            String msg = a.assignTeacher(teacherId);
             messagebox(msg, "Assign");
             ShowAssignRec(); // Refresh table immediately!
         } else {

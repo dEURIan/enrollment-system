@@ -60,3 +60,25 @@ CREATE TABLE IF NOT EXISTS grades (
     PRIMARY KEY (gradeid),
     FOREIGN KEY (enroll_eid) REFERENCES enroll(eid)
 );
+
+DROP PROCEDURE IF EXISTS checkScheduleConflict;
+DELIMITER //
+CREATE PROCEDURE checkScheduleConflict(IN p_role VARCHAR(10), IN p_id INT, IN p_subjid INT)
+SQL SECURITY INVOKER
+BEGIN
+    DECLARE v_time VARCHAR(50);
+    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), ' ', -1), '-', -2)
+    INTO v_time FROM subjects WHERE subjid = p_subjid;
+    IF p_role = 'student' THEN
+        SELECT s.subjid, s.subjcode, s.subjsched FROM enroll e
+        INNER JOIN subjects s ON e.subjid = s.subjid
+        WHERE e.studid = p_id AND v_time != ''
+          AND SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) = v_time;
+    ELSE
+        SELECT s.subjid, s.subjcode, s.subjsched FROM assign a
+        INNER JOIN subjects s ON a.SubjID = s.subjid
+        WHERE a.TID = p_id AND v_time != ''
+          AND SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) = v_time;
+    END IF;
+END //
+DELIMITER ;

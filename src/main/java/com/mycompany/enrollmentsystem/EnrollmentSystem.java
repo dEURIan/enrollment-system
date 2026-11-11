@@ -91,10 +91,57 @@ public class EnrollmentSystem {
                             "final VARCHAR(10) NULL DEFAULT NULL," +
                             "PRIMARY KEY (gradeid)," +
                             "FOREIGN KEY (enroll_eid) REFERENCES enroll(eid));");
+            createConflictProcedure();
         }catch(Exception ex){
             System.out.println(ex);
         }
         return term + "_" + schyear;
+    }
+
+    public void createConflictProcedure() {
+        try {
+            st.execute("DROP PROCEDURE IF EXISTS checkScheduleConflict");
+            st.execute(
+                "CREATE PROCEDURE checkScheduleConflict(IN p_role VARCHAR(10), IN p_id INT, IN p_subjid INT) " +
+                "SQL SECURITY INVOKER " +
+                "BEGIN " +
+                "    DECLARE v_time VARCHAR(50); " +
+                "    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), ' ', -1), '-', -2) " +
+                "    INTO v_time FROM subjects WHERE subjid = p_subjid; " +
+                "    IF p_role = 'student' THEN " +
+                "        SELECT s.subjid, s.subjcode, s.subjsched FROM enroll e " +
+                "        INNER JOIN subjects s ON e.subjid = s.subjid " +
+                "        WHERE e.studid = p_id AND v_time != '' " +
+                "          AND SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) = v_time; " +
+                "    ELSE " +
+                "        SELECT s.subjid, s.subjcode, s.subjsched FROM assign a " +
+                "        INNER JOIN subjects s ON a.SubjID = s.subjid " +
+                "        WHERE a.TID = p_id AND v_time != '' " +
+                "          AND SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) = v_time; " +
+                "    END IF; " +
+                "END"
+            );
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+    }
+
+    public String checkScheduleConflict(String role, int id, int subjid) {
+        DBConnect();
+        try {
+            try {
+                rs = st.executeQuery("CALL checkScheduleConflict('" + role + "', " + id + ", " + subjid + ")");
+            } catch (Exception missingProc) {
+                createConflictProcedure();
+                rs = st.executeQuery("CALL checkScheduleConflict('" + role + "', " + id + ", " + subjid + ")");
+            }
+            if (rs.next()) {
+                return "Schedule conflict with " + rs.getString("subjcode") + " (" + rs.getString("subjsched") + ")";
+            }
+        } catch (Exception ex) {
+            System.out.println(ex);
+        }
+        return null;
     }
     
     public static void main(String[] args) { 
