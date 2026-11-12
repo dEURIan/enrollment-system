@@ -387,14 +387,22 @@ public class SubjectsFrame extends javax.swing.JFrame {
 
     private void DeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_DeleteActionPerformed
         if (subjid.getText().trim().isEmpty()) {
-            messagebox("select a student to delete first", "Delete");
+            messagebox("select a subject to delete first", "Delete");
             return;
         }
         
+        int id = Integer.parseInt(subjid.getText().trim());
         Subjects c = new Subjects();
-        c.deleteSubjects(Integer.parseInt(subjid.getText()));
+        c.deleteSubjects(id);
+        if (Enroll.getSubjid() == id) {
+            Enroll.setSubjid(0);
+        }
+        if (Assign.getSubjid() == id) {
+            Assign.setSubjid(0);
+        }
         showRecords();
         clearFields();
+        ShowClassList();
     }//GEN-LAST:event_DeleteActionPerformed
 
     private void subjschedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_subjschedActionPerformed

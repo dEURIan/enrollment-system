@@ -98,8 +98,17 @@ public class EnrollmentSystem {
         return term + "_" + schyear;
     }
 
+    private String parseTimeSQL(String tokenExpr) {
+        return "COALESCE(STR_TO_DATE(" + tokenExpr + ", '%h:%i%p'), STR_TO_DATE(" + tokenExpr + ", '%H:%i'), STR_TO_DATE(" + tokenExpr + ", '%h%p'), STR_TO_DATE(" + tokenExpr + ", '%H'))";
+    }
+
     public void createConflictProcedure() {
+        String timeRegex = "^[0-9]{1,2}(:[0-9]{2})?(AM|PM)?-[0-9]{1,2}(:[0-9]{2})?(AM|PM)?$";
+        String cleanV = "REPLACE(REPLACE(REPLACE(UPPER(TRIM(subjsched)), ' AM', 'AM'), ' PM', 'PM'), ' - ', '-')";
+        String cleanS = "REPLACE(REPLACE(REPLACE(UPPER(TRIM(s.subjsched)), ' AM', 'AM'), ' PM', 'PM'), ' - ', '-')";
         try {
+            st.execute("DROP PROCEDURE IF EXISTS check_student_schedule");
+            st.execute("DROP PROCEDURE IF EXISTS check_teacher_schedule");
             st.execute("DROP PROCEDURE IF EXISTS checkScheduleConflict");
             st.execute(
                 "CREATE PROCEDURE checkScheduleConflict(IN p_role VARCHAR(10), IN p_id INT, IN p_subjid INT) " +
@@ -107,29 +116,43 @@ public class EnrollmentSystem {
                 "BEGIN " +
                 "    DECLARE v_time VARCHAR(50); " +
                 "    DECLARE v_days VARCHAR(50); " +
-                "    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), ' ', -1), '-', -2) " +
+                "    DECLARE v_start TIME; " +
+                "    DECLARE v_end TIME; " +
+                "    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(" + cleanV + ", ' ', -1), '-', -2) " +
                 "    INTO v_time FROM subjects WHERE subjid = p_subjid; " +
-                "    SELECT REPLACE(REPLACE(REPLACE(UPPER(TRIM(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), v_time, 1))), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R') " +
+                "    SELECT REPLACE(REPLACE(REPLACE(TRIM(SUBSTRING_INDEX(" + cleanV + ", v_time, 1)), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R') " +
                 "    INTO v_days FROM subjects WHERE subjid = p_subjid; " +
+                "    IF v_time REGEXP '" + timeRegex + "' THEN " +
+                "        SET v_start = " + parseTimeSQL("SUBSTRING_INDEX(v_time, '-', 1)") + "; " +
+                "        IF HOUR(v_start) < 7 AND v_time NOT LIKE '%AM%' THEN SET v_start = ADDTIME(v_start, '12:00:00'); END IF; " +
+                "        SET v_end = " + parseTimeSQL("SUBSTRING_INDEX(v_time, '-', -1)") + "; " +
+                "        IF HOUR(v_end) < 7 AND v_time NOT LIKE '%AM%' THEN SET v_end = ADDTIME(v_end, '12:00:00'); END IF; " +
+                "    END IF; " +
                 "    SELECT subjid, subjcode, subjsched FROM ( " +
-                "        SELECT s.subjid, s.subjcode, s.subjsched, " +
-                "            SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) AS s_time, " +
-                "            REPLACE(REPLACE(REPLACE(UPPER(TRIM(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), v_time, 1))), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R') AS s_days " +
-                "        FROM subjects s " +
-                "        WHERE (p_role = 'student' AND s.subjid IN (SELECT subjid FROM enroll WHERE studid = p_id)) " +
-                "           OR (p_role != 'student' AND s.subjid IN (SELECT SubjID FROM assign WHERE TID = p_id)) " +
-                "    ) t " +
-                "    WHERE v_time != '' AND v_time REGEXP '[0-9]' AND s_time = v_time " +
-                "      AND ( " +
-                "          v_days = '' OR s_days = '' OR " +
-                "          (v_days LIKE '%M%' AND s_days LIKE '%M%') OR " +
-                "          (v_days LIKE '%T%' AND s_days LIKE '%T%') OR " +
-                "          (v_days LIKE '%W%' AND s_days LIKE '%W%') OR " +
-                "          (v_days LIKE '%R%' AND s_days LIKE '%R%') OR " +
-                "          (v_days LIKE '%F%' AND s_days LIKE '%F%') OR " +
-                "          (v_days LIKE '%S%' AND s_days LIKE '%S%') OR " +
-                "          (v_days LIKE '%U%' AND s_days LIKE '%U%') " +
-                "      ); " +
+                "        SELECT subjid, subjcode, subjsched, s_time, " +
+                "            REPLACE(REPLACE(REPLACE(TRIM(SUBSTRING_INDEX(s_clean, s_time, 1)), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R') AS s_days, " +
+                "            CASE WHEN s_time REGEXP '" + timeRegex + "' THEN " + parseTimeSQL("SUBSTRING_INDEX(s_time, '-', 1)") + " END AS raw_start, " +
+                "            CASE WHEN s_time REGEXP '" + timeRegex + "' THEN " + parseTimeSQL("SUBSTRING_INDEX(s_time, '-', -1)") + " END AS raw_end " +
+                "        FROM ( " +
+                "            SELECT s.subjid, s.subjcode, s.subjsched, " + cleanS + " AS s_clean, " +
+                "                SUBSTRING_INDEX(SUBSTRING_INDEX(" + cleanS + ", ' ', -1), '-', -2) AS s_time " +
+                "            FROM subjects s " +
+                "            WHERE (p_role = 'student' AND s.subjid IN (SELECT subjid FROM enroll WHERE studid = p_id)) " +
+                "               OR (p_role != 'student' AND s.subjid IN (SELECT SubjID FROM assign WHERE TID = p_id)) " +
+                "        ) t0 " +
+                "    ) t1 " +
+                "    WHERE v_start IS NOT NULL AND v_end IS NOT NULL " +
+                "      AND raw_start IS NOT NULL AND raw_end IS NOT NULL " +
+                "      AND v_start < IF(HOUR(raw_end) < 7 AND s_time NOT LIKE '%AM%', ADDTIME(raw_end, '12:00:00'), raw_end) " +
+                "      AND v_end > IF(HOUR(raw_start) < 7 AND s_time NOT LIKE '%AM%', ADDTIME(raw_start, '12:00:00'), raw_start) " +
+                "      AND (v_days = '' OR s_days = '' OR " +
+                "           (v_days LIKE '%M%' AND s_days LIKE '%M%') OR " +
+                "           (v_days LIKE '%T%' AND s_days LIKE '%T%') OR " +
+                "           (v_days LIKE '%W%' AND s_days LIKE '%W%') OR " +
+                "           (v_days LIKE '%R%' AND s_days LIKE '%R%') OR " +
+                "           (v_days LIKE '%F%' AND s_days LIKE '%F%') OR " +
+                "           (v_days LIKE '%S%' AND s_days LIKE '%S%') OR " +
+                "           (v_days LIKE '%U%' AND s_days LIKE '%U%')); " +
                 "END"
             );
         } catch (Exception ex) {
@@ -139,13 +162,9 @@ public class EnrollmentSystem {
 
     public String checkScheduleConflict(String role, int id, int subjid) {
         DBConnect();
+        createConflictProcedure();
         try {
-            try {
-                rs = st.executeQuery("CALL checkScheduleConflict('" + role + "', " + id + ", " + subjid + ")");
-            } catch (Exception missingProc) {
-                createConflictProcedure();
-                rs = st.executeQuery("CALL checkScheduleConflict('" + role + "', " + id + ", " + subjid + ")");
-            }
+            rs = st.executeQuery("CALL checkScheduleConflict('" + role + "', " + id + ", " + subjid + ")");
             if (rs.next()) {
                 return "Schedule conflict with " + rs.getString("subjcode") + " (" + rs.getString("subjsched") + ")";
             }

@@ -60,36 +60,3 @@ CREATE TABLE IF NOT EXISTS grades (
     PRIMARY KEY (gradeid),
     FOREIGN KEY (enroll_eid) REFERENCES enroll(eid)
 );
-
-DROP PROCEDURE IF EXISTS checkScheduleConflict;
-DELIMITER //
-CREATE PROCEDURE checkScheduleConflict(IN p_role VARCHAR(10), IN p_id INT, IN p_subjid INT)
-SQL SECURITY INVOKER
-BEGIN
-    DECLARE v_time VARCHAR(50);
-    DECLARE v_days VARCHAR(50);
-    SELECT SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), ' ', -1), '-', -2)
-    INTO v_time FROM subjects WHERE subjid = p_subjid;
-    SELECT REPLACE(REPLACE(REPLACE(UPPER(TRIM(SUBSTRING_INDEX(REPLACE(TRIM(subjsched), ' - ', '-'), v_time, 1))), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R')
-    INTO v_days FROM subjects WHERE subjid = p_subjid;
-    SELECT subjid, subjcode, subjsched FROM (
-        SELECT s.subjid, s.subjcode, s.subjsched,
-            SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), ' ', -1), '-', -2) AS s_time,
-            REPLACE(REPLACE(REPLACE(UPPER(TRIM(SUBSTRING_INDEX(REPLACE(TRIM(s.subjsched), ' - ', '-'), v_time, 1))), 'SAT', 'S'), 'SUN', 'U'), 'TH', 'R') AS s_days
-        FROM subjects s
-        WHERE (p_role = 'student' AND s.subjid IN (SELECT subjid FROM enroll WHERE studid = p_id))
-           OR (p_role != 'student' AND s.subjid IN (SELECT SubjID FROM assign WHERE TID = p_id))
-    ) t
-    WHERE v_time != '' AND v_time REGEXP '[0-9]' AND s_time = v_time
-      AND (
-          v_days = '' OR s_days = '' OR
-          (v_days LIKE '%M%' AND s_days LIKE '%M%') OR
-          (v_days LIKE '%T%' AND s_days LIKE '%T%') OR
-          (v_days LIKE '%W%' AND s_days LIKE '%W%') OR
-          (v_days LIKE '%R%' AND s_days LIKE '%R%') OR
-          (v_days LIKE '%F%' AND s_days LIKE '%F%') OR
-          (v_days LIKE '%S%' AND s_days LIKE '%S%') OR
-          (v_days LIKE '%U%' AND s_days LIKE '%U%')
-      );
-END //
-DELIMITER ;

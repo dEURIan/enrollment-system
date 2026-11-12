@@ -43,8 +43,10 @@ public class Subjects {
         EnrollmentSystem b = new EnrollmentSystem();
         b.DBConnect();
         try{
-            String query = "delete from subjects where subjid = " + subjid;
-            b.st.executeUpdate(query);
+            b.st.executeUpdate("delete from grades where enroll_eid in (select eid from enroll where subjid = " + subjid + ")");
+            b.st.executeUpdate("delete from enroll where subjid = " + subjid);
+            b.st.executeUpdate("delete from assign where SubjID = " + subjid);
+            b.st.executeUpdate("delete from subjects where subjid = " + subjid);
             System.out.println("Deleted successfully!");
         }catch (Exception ex){
             System.out.println("not Success with sql!");
